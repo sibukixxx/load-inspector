@@ -6,9 +6,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/analysis"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/analysis/gate"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/analysis/policy"
+	"github.com/sibukixxx/load-inspector/sidecar-go/analysis"
+	"github.com/sibukixxx/load-inspector/sidecar-go/analysis/gate"
+	"github.com/sibukixxx/load-inspector/sidecar-go/analysis/policy"
 )
 
 // maxAnalysisRequestBody caps the size of a decoded JSON request body for
