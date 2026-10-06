@@ -259,7 +259,7 @@ document.getElementById('timingBtn').onclick = async () => {
 };
 
 // ---- Gate view ----------------------------------------------------------------
-// A minimal, client-side approximation of `duckload gate`: one p95
+// A minimal, client-side approximation of `load-inspector gate`: one p95
 // regression threshold and one absolute error-rate budget, applied to
 // every endpoint. This intentionally does not reimplement the full
 // policy schema (per-endpoint overrides, min_samples, absolute latency
