@@ -4,7 +4,7 @@ The performance gate turns a P0 analysis (endpoint statistics, baseline
 comparison, regression detection) into a single machine-checkable verdict —
 PASS, WARN, or FAIL — that CI can act on. It is a plain Go package
 (`sidecar-go/analysis/gate`) with no dependency on any CI provider: the
-same evaluation engine backs the `duckload gate` CLI command, the
+same evaluation engine backs the `load-inspector gate` CLI command, the
 `POST /api/v1/analysis/gate` HTTP endpoint, and this package's own tests.
 A CI provider only ever calls one of those two entry points and reads an
 exit code or a JSON body — it never re-implements a check.
@@ -137,7 +137,7 @@ endpoints were analyzed.
 
 ## Exit code contract
 
-`duckload gate` (and any CI step that calls it) uses exit codes to let CI
+`load-inspector gate` (and any CI step that calls it) uses exit codes to let CI
 distinguish "the build regressed" from "the tool couldn't run":
 
 | Exit code | Meaning |
@@ -166,5 +166,5 @@ CI-only code path. Download the same two `.duckdb` files the CI job used
 then run:
 
 ```bash
-duckload gate --current current.duckdb --baseline baseline.duckdb --policy performance-policy.yml
+load-inspector gate --current current.duckdb --baseline baseline.duckdb --policy performance-policy.yml
 ```
