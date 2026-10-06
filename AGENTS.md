@@ -1,4 +1,4 @@
-# DuckDB Load Testing Toolkit
+# Load Inspector
 
 Go sidecar/CLI for collecting load-test metrics, storing them in DuckDB/object storage, and running reproducible analysis/gates.
 
