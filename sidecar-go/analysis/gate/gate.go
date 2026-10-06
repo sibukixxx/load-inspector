@@ -16,7 +16,7 @@ import (
 )
 
 // SchemaVersion is the evaluation result's JSON schema version — the
-// compatibility boundary for CI integrations that parse `duckload gate
+// compatibility boundary for CI integrations that parse `load-inspector gate
 // --format json` output. Bump it only for a breaking change to Result's
 // shape.
 const SchemaVersion = 1
