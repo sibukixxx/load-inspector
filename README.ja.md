@@ -237,11 +237,11 @@ unzip duckdb_cli-linux-amd64.zip && sudo mv duckdb /usr/local/bin/
 
 ```bash
 git clone <repository-url>
-cd duckdb-load-testing-template
+cd load-inspector
 
 # ディレクトリ構成の確認
 ls -la
-# → CLAUDE.md, README.md, docker-compose.yml, sidecar-go/, k6/, frontend/, ...
+# → README.md, docker-compose.yml, sidecar-go/, k6/, frontend/, ...
 ```
 
 ---
