@@ -1,26 +1,50 @@
 # Load Inspector
 
 <!-- oss-readme-intro:v1 -->
-A portable **load-test analysis and regression inspection toolkit**. Capture request-level k6 metrics, keep them in a DuckDB file, compare runs later, diagnose where latency changed, and turn the result into a CI-friendly PASS/WARN/FAIL gate.
+Load Inspector is a portable **load-test analysis and regression inspection toolkit** for k6 results. It stores request-level metrics in DuckDB so you can inspect a run after the test, compare it with a baseline, diagnose which timing phase regressed, and enforce a reproducible PASS/WARN/FAIL performance gate.
 
-### Who is it for?
+## What it does
 
-- engineers running k6 load tests
-- teams that want to analyze raw request metrics after a test instead of keeping only dashboard aggregates
-- CI pipelines that need a reproducible performance regression gate
+- captures request-level k6 metrics instead of keeping only aggregates
+- stores each run in a portable `.duckdb` file
+- compares baseline/current runs and detects endpoint regressions
+- breaks latency changes down into DNS / TCP / TLS / TTFB / transfer phases
+- produces deterministic bottleneck explanations
+- applies YAML/JSON performance policies for CI gates
+- merges distributed results and can upload them to S3-compatible storage
+- opens saved results locally or in the browser with DuckDB-Wasm
 
-### Quick start
+## Install
+
+For the offline CLI, Go 1.24+ is enough:
+
+```sh
+git clone https://github.com/sibukixxx/load-inspector.git
+cd load-inspector/sidecar-go
+go build -o load-inspector ./cmd/load-inspector
+./load-inspector --help
+```
+
+For the full local capture pipeline you also need Docker Compose and k6.
+
+## Quick start
+
+Start the local sidecar and object storage:
 
 ```sh
 docker compose up -d
+```
 
+Run an authorized k6 test:
+
+```sh
 SIDECAR_BASE=http://localhost:8081 \
 TARGET=https://test.k6.io \
 RUN_ID=quickstart \
 k6 run k6/k6-script.js
 ```
 
-Download the result and inspect it locally:
+Download the result and inspect it offline:
 
 ```sh
 curl http://localhost:8081/api/v1/download -o result.duckdb
@@ -30,43 +54,15 @@ go build -o load-inspector ./cmd/load-inspector
 ./load-inspector summary ../result.duckdb --run-id quickstart
 ```
 
-### What can it do?
+## When to use it
 
-Store request-level metrics, merge distributed runs, query results with DuckDB, compare baselines, inspect DNS/TCP/TLS/TTFB/transfer changes, detect endpoint regressions, explain measured bottlenecks and enforce a YAML/JSON performance policy.
+Use Load Inspector when **a load test got slower and you need to know where, by how much, and whether CI should block the change**—without running a permanent observability stack.
 
-### Use it when
-
-Use it when **“the load test got slower, but I need to know where and by how much”** or when a CI pipeline should fail on a reproducible performance regression.
-
-See [Analysis](#analysis), [Performance Gate](#performance-gate), and [CLI](#cli-load-inspector) for details.
+See [Analysis](#analysis), [Performance Gate](#performance-gate), [CLI](#cli-load-inspector), and [CI integration](docs/ci-integration.md) for details.
 <!-- /oss-readme-intro -->
 
 
-> [!NOTE]
-> **Repository transition:** this repository remains the canonical source until the planned migration to `load-inspector`. The replacement repository will be created from cleaned history after verification. Until then, commands, binary names and links intentionally use the current repository/product names.
 
-
-<!-- ecosystem-expansion:v1 -->
-## Expansion contract
-
-This repository is one capability owner or reference asset in the TechVit ecosystem. New ideas should extend the existing graph before creating another silo.
-
-**Canonical responsibility:** portable load-test performance evidence producer
-
-When new work appears:
-
-1. **Extend here** only when the new behavior belongs to this repository's stated responsibility.
-2. **Integrate, don't copy** when another repository owns the concept. Exchange versioned API/artifact/event references; do not share databases or import another product's internals.
-3. **Promote reusable capability only after real reuse appears.** Keep the first vertical slice close to its product; extract a common core when there are at least two real consumers or a deliberate public/private boundary.
-4. **Create a new repository only** for a distinct product/vertical with its own lifecycle, deployment/security boundary, or OSS/commercial boundary. Its README must declare upstream/downstream owners from day one.
-5. **Reference/experiment repositories may stop evolving without losing their value.** Move validated rules, contracts, fixtures, and learnings into the canonical owner, then freeze/archive the duplicate implementation.
-
-**Route new work:** load-test固有のcapture/query/reportはここへ拡張し、汎用Research semanticsや会社運用はInsight/TechVit Adminへ接続する。
-
-Cross-cutting owners: TechVit Admin = company operations; TechVit Platform = shared cloud/bootstrap/identity; Insight = research semantics; techvit-insight = managed research; Relayboard = work execution; AI Allowance Guard = privileged-action authority; EC Hub = commerce; AffiliateMediaOS/VideoForge = content production; ja-company-* = company-data/outreach producers; public/product sites = acquisition surfaces.
-
-If ownership is unclear, implement the smallest vertical slice in the nearest existing owner first. Extract only when actual reuse proves the boundary.
-<!-- /ecosystem-expansion:v1 -->
 
 English | [日本語](README.ja.md) | [简体中文](README.zh-CN.md)
 
@@ -97,7 +93,7 @@ If you've ever wanted to re-slice a load test after the fact — by endpoint, by
 - The analysis layer implements run/endpoint statistics, regression detection, timing-phase bottleneck evidence, deterministic explanations, trend/baseline queries and a provider-neutral PASS/WARN/FAIL performance gate.
 - `load-inspector` can analyze, compare, diagnose, validate the SQL analysis catalog and evaluate the full gate policy offline without a running sidecar; the browser viewer provides local DuckDB-Wasm inspection.
 - Analysis SQL is versioned as named artifacts and validated against deterministic synthetic fixtures; this repository produces performance evidence and does not infer business/root-cause conclusions beyond the measured timing evidence.
-- The planned `load-inspector` migration removes DuckDB from the product name while keeping DuckDB as the current storage/query engine.
+- DuckDB remains the current storage/query engine, while the product name stays independent of that implementation choice.
 <!-- /current-implementation -->
 
 <!-- role-boundary:v1 -->
