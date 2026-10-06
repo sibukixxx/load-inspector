@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/handlers"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/realtime"
+	"github.com/sibukixxx/load-inspector/sidecar-go/handlers"
+	"github.com/sibukixxx/load-inspector/sidecar-go/realtime"
 )
 
 // NewRouter builds the application router shared by the production server and E2E tests.
