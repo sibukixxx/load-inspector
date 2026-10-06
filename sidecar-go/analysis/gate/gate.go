@@ -11,8 +11,8 @@ package gate
 import (
 	"sort"
 
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/analysis"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/analysis/policy"
+	"github.com/sibukixxx/load-inspector/sidecar-go/analysis"
+	"github.com/sibukixxx/load-inspector/sidecar-go/analysis/policy"
 )
 
 // SchemaVersion is the evaluation result's JSON schema version — the
