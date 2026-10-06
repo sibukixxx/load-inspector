@@ -5,8 +5,8 @@ import (
 
 	_ "github.com/duckdb/duckdb-go/v2"
 
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/analysis/fixtures"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/analysis/queries"
+	"github.com/sibukixxx/load-inspector/sidecar-go/analysis/fixtures"
+	"github.com/sibukixxx/load-inspector/sidecar-go/analysis/queries"
 )
 
 // TestValidateAll_AcrossAllFixtures is the CI-facing check described by the
