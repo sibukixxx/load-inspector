@@ -118,7 +118,7 @@ itself. If your own k6 script never sets `name`, the raw `url` is used —
 so this only helps once you start tagging requests, and never rewrites a
 URL you didn't ask it to.
 
-Use whichever value shows up in `duckload endpoints`' or the
+Use whichever value shows up in `load-inspector endpoints`' or the
 `/api/v1/analysis/endpoints` response's `"endpoint"` field as the key
 under `policy.endpoints`.
 
@@ -126,7 +126,7 @@ under `policy.endpoints`.
 
 A policy with only `p95.max_ms` set (no `max_regression_percent`) is a
 pure **Performance Budget Gate** — it needs no baseline at all and works
-in `duckload gate`'s Performance-Budget-only mode (omit `--baseline`
+in `load-inspector gate`'s Performance-Budget-only mode (omit `--baseline`
 entirely). A policy with only `max_regression_percent` set is a pure
 **Regression Gate**. Most real policies use both, and the gate evaluates
 them independently per endpoint per metric — an endpoint can fail its
