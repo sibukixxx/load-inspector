@@ -1,4 +1,4 @@
-# DuckDB Load Testing Toolkit
+# Load Inspector
 
 <!-- oss-readme-intro:v1 -->
 A portable **load-test analysis and regression inspection toolkit**. Capture request-level k6 metrics, keep them in a DuckDB file, compare runs later, diagnose where latency changed, and turn the result into a CI-friendly PASS/WARN/FAIL gate.
@@ -26,8 +26,8 @@ Download the result and inspect it locally:
 curl http://localhost:8081/api/v1/download -o result.duckdb
 
 cd sidecar-go
-go build -o duckload ./cmd/duckload
-./duckload summary ../result.duckdb --run-id quickstart
+go build -o load-inspector ./cmd/load-inspector
+./load-inspector summary ../result.duckdb --run-id quickstart
 ```
 
 ### What can it do?
@@ -38,7 +38,7 @@ Store request-level metrics, merge distributed runs, query results with DuckDB, 
 
 Use it when **“the load test got slower, but I need to know where and by how much”** or when a CI pipeline should fail on a reproducible performance regression.
 
-See [Analysis](#analysis), [Performance Gate](#performance-gate), and [CLI](#cli-duckload) for details.
+See [Analysis](#analysis), [Performance Gate](#performance-gate), and [CLI](#cli-load-inspector) for details.
 <!-- /oss-readme-intro -->
 
 
@@ -70,7 +70,7 @@ If ownership is unclear, implement the smallest vertical slice in the nearest ex
 
 English | [日本語](README.ja.md) | [简体中文](README.zh-CN.md)
 
-[![CI](https://github.com/sibukixxx/duckdb-load-testing-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/sibukixxx/duckdb-load-testing-toolkit/actions/workflows/ci.yml)
+[![CI](https://github.com/sibukixxx/load-inspector/actions/workflows/ci.yml/badge.svg)](https://github.com/sibukixxx/load-inspector/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Go Version](https://img.shields.io/badge/Go-1.24%2B-00ADD8?logo=go)](sidecar-go/go.mod)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#project-status-and-contributing)
@@ -95,7 +95,7 @@ If you've ever wanted to re-slice a load test after the fact — by endpoint, by
 
 - The project captures request-level k6 metrics into portable DuckDB files, optionally uploads them to S3-compatible storage, merges distributed results and keeps the result queryable after the test has finished.
 - The analysis layer implements run/endpoint statistics, regression detection, timing-phase bottleneck evidence, deterministic explanations, trend/baseline queries and a provider-neutral PASS/WARN/FAIL performance gate.
-- `duckload` can analyze, compare, diagnose, validate the SQL analysis catalog and evaluate the full gate policy offline without a running sidecar; the browser viewer provides local DuckDB-Wasm inspection.
+- `load-inspector` can analyze, compare, diagnose, validate the SQL analysis catalog and evaluate the full gate policy offline without a running sidecar; the browser viewer provides local DuckDB-Wasm inspection.
 - Analysis SQL is versioned as named artifacts and validated against deterministic synthetic fixtures; this repository produces performance evidence and does not infer business/root-cause conclusions beyond the measured timing evidence.
 - The planned `load-inspector` migration removes DuckDB from the product name while keeping DuckDB as the current storage/query engine.
 <!-- /current-implementation -->
@@ -125,7 +125,7 @@ If you've ever wanted to re-slice a load test after the fact — by endpoint, by
 ```text
 k6 / request metrics
         ↓
-DuckDB Load Testing Toolkit
+Load Inspector
         ↓ performance evidence / gate result
 CI / human / research / downstream decision system
 ```
@@ -139,7 +139,7 @@ Performance factsとdownstream interpretationを分離する。同じ入力とpo
 - [Quick start](#quick-start)
 - [Analysis](#analysis)
 - [Performance Gate](#performance-gate)
-- [CLI (`duckload`)](#cli-duckload)
+- [CLI (`load-inspector`)](#cli-load-inspector)
 - [Browser viewer](#browser-viewer)
 - [Sidecar API](#sidecar-api)
 - [Configuration](#configuration)
@@ -190,7 +190,7 @@ The k6 script sends request metrics to the Go sidecar. The sidecar buffers them,
 | `sidecar-go/analysis/gate/` | The performance gate's evaluation engine (PASS/WARN/FAIL), independent of any CI provider |
 | `sidecar-go/analysis/policy/` | The performance policy schema (YAML/JSON) and loader |
 | `sidecar-go/analysis/fixtures/` | Deterministic synthetic performance fixtures used to test analysis and the gate without a real load test |
-| `sidecar-go/cmd/duckload/` | `duckload` — an offline CLI for analyzing a `.duckdb` result file directly |
+| `sidecar-go/cmd/load-inspector/` | `load-inspector` — an offline CLI for analyzing a `.duckdb` result file directly |
 | `docs/` | Performance gate, policy schema, and CI integration reference; a ready-to-copy example policy and GitHub Actions workflow |
 | `k6/` | Basic and advanced k6 scenarios plus Kubernetes manifests |
 | `aggregate-job/` | Kubernetes job for merging distributed DuckDB result files |
@@ -249,7 +249,7 @@ duckdb result.duckdb \
 
 ### 4. Analyze and compare
 
-Run the quickstart test again with a different `RUN_ID` (e.g. `after-change`), download that result too, then compare the two runs — either through the API or offline with the `duckload` CLI:
+Run the quickstart test again with a different `RUN_ID` (e.g. `after-change`), download that result too, then compare the two runs — either through the API or offline with the `load-inspector` CLI:
 
 ```bash
 curl -X POST http://localhost:8081/api/v1/analysis/compare \
@@ -272,8 +272,8 @@ curl -X POST http://localhost:8081/api/v1/analysis/diagnose \
 Turn the comparison into a CI-friendly PASS/WARN/FAIL verdict with an exit code:
 
 ```bash
-cd sidecar-go && go build -o duckload ./cmd/duckload
-./duckload gate \
+cd sidecar-go && go build -o load-inspector ./cmd/load-inspector
+./load-inspector gate \
   --current result.duckdb --run-id after-change \
   --baseline result.duckdb --baseline-run-id quickstart \
   --policy ../docs/examples/performance-policy.example.yml
@@ -304,7 +304,7 @@ Endpoints are identified by `COALESCE(NULLIF(name, ''), url)`: k6 already tags e
 The performance gate (`sidecar-go/analysis/gate`) turns an endpoint analysis into a single machine-checkable verdict — **PASS**, **WARN**, or **FAIL** — driven by a plain YAML/JSON policy file, so CI can block a merge on a real performance regression without any provider-specific gating logic:
 
 ```bash
-duckload gate \
+load-inspector gate \
   --current current.duckdb --baseline baseline.duckdb \
   --policy performance-policy.yml
 ```
@@ -322,34 +322,34 @@ FAIL    /api/users               p95 (regression)
 - **Two independent checks per metric**: an absolute **Performance Budget** (e.g. "p95 must stay under 500ms", no baseline needed) and a baseline-relative **regression** check — an endpoint can fail one and pass the other.
 - **Noise-resistant by construction**: a relative threshold, an absolute-millisecond floor, and a minimum sample size all have to agree before something counts as a regression — see [`docs/performance-gate.md`](docs/performance-gate.md#noise-resistance).
 - **Never guesses from insufficient data**: too few samples, or an endpoint the baseline never saw, becomes an `UNKNOWN` finding — configurable via `unknown_treatment` — instead of a false PASS or FAIL.
-- **One evaluation engine, three doors in**: `duckload gate`, `POST /api/v1/analysis/gate`, and this package's own tests all call the exact same `gate.Evaluate` — a CI failure is always reproducible locally with the same command.
+- **One evaluation engine, three doors in**: `load-inspector gate`, `POST /api/v1/analysis/gate`, and this package's own tests all call the exact same `gate.Evaluate` — a CI failure is always reproducible locally with the same command.
 - **Exit code contract**: `0` = PASS (or WARN by default), `1` = FAIL (or WARN with `--warn-exit-code 1`), `2` = a tool/input error (never a performance verdict) — see [`docs/performance-gate.md`](docs/performance-gate.md#exit-code-contract).
 
 See [`docs/performance-gate.md`](docs/performance-gate.md) for the full contract, [`docs/performance-policy.md`](docs/performance-policy.md) for the policy schema (with a ready-to-copy [example](docs/examples/performance-policy.example.yml)), and [`docs/ci-integration.md`](docs/ci-integration.md) for wiring it into a pipeline (a worked [GitHub Actions example](docs/examples/github-actions-performance-gate.yml) included — copy it into `.github/workflows/` yourself).
 
-## CLI (`duckload`)
+## CLI (`load-inspector`)
 
-`duckload` analyzes a `.duckdb` result file directly, without a running sidecar — useful once a file has been downloaded or shared.
+`load-inspector` analyzes a `.duckdb` result file directly, without a running sidecar — useful once a file has been downloaded or shared.
 
 ```bash
 cd sidecar-go
-go build -o duckload ./cmd/duckload
+go build -o load-inspector ./cmd/load-inspector
 
 # summary/endpoints/compare/diagnose take a single .duckdb FILE as their
 # positional argument, and --baseline/--current as RUN_ID values within it.
-./duckload summary result.duckdb --run-id quickstart
-./duckload endpoints result.duckdb --run-id quickstart
-./duckload compare result.duckdb --baseline quickstart --current after-change
-./duckload diagnose result.duckdb --baseline quickstart --current after-change
-./duckload check-analysis   # validates every catalog query against every synthetic fixture
+./load-inspector summary result.duckdb --run-id quickstart
+./load-inspector endpoints result.duckdb --run-id quickstart
+./load-inspector compare result.duckdb --baseline quickstart --current after-change
+./load-inspector diagnose result.duckdb --baseline quickstart --current after-change
+./load-inspector check-analysis   # validates every catalog query against every synthetic fixture
 
 # gate is the one exception: --baseline/--current are FILE paths (there is
 # no positional argument), each auto-detecting its run_id if the file has
 # exactly one — see the Performance Gate section above. Add --run-id /
 # --baseline-run-id to pick a run_id explicitly, including from a single
 # file shared between both (as below, reusing result.duckdb for both).
-./duckload gate --current current.duckdb --baseline baseline.duckdb --policy performance-policy.yml
-./duckload gate --current result.duckdb --run-id after-change --baseline result.duckdb --baseline-run-id quickstart --policy performance-policy.yml --format json
+./load-inspector gate --current current.duckdb --baseline baseline.duckdb --policy performance-policy.yml
+./load-inspector gate --current result.duckdb --run-id after-change --baseline result.duckdb --baseline-run-id quickstart --policy performance-policy.yml --format json
 ```
 
 ## Browser viewer
@@ -366,7 +366,7 @@ Open `http://localhost:8080` and select a DuckDB result file. Queries run locall
 - **Endpoints** — per-endpoint request/error counts and latency percentiles.
 - **Regression** — per-endpoint p95 and error-rate deltas between a baseline and a current run.
 - **Timing Breakdown** — DNS/TCP/TLS/TTFB/transfer averages for one endpoint, baseline vs. current.
-- **Gate** — a minimal, client-side PASS/WARN/FAIL check (one p95 regression threshold, one error-rate budget) so a result can be sanity-checked without leaving the browser; use `duckload gate` or the HTTP endpoint for the full policy schema.
+- **Gate** — a minimal, client-side PASS/WARN/FAIL check (one p95 regression threshold, one error-rate budget) so a result can be sanity-checked without leaving the browser; use `load-inspector gate` or the HTTP endpoint for the full policy schema.
 
 ## Sidecar API
 
@@ -410,7 +410,7 @@ See [`docker-compose.yml`](docker-compose.yml) for a complete local example and 
 
 ```bash
 make build-sidecar  # build the Go sidecar
-make build-cli      # build the duckload CLI
+make build-cli      # build the load-inspector CLI
 make test-unit      # run unit tests with the race detector
 make test-e2e       # run end-to-end tests
 make test-analysis  # validate every analysis SQL query against every synthetic fixture
@@ -429,7 +429,7 @@ The toolkit is ready for use with the compatibility guarantees described above. 
 
 If this toolkit is useful to you, consider starring the repo — it helps others discover the project.
 
-[![Star History Chart](https://api.star-history.com/svg?repos=sibukixxx/duckdb-load-testing-toolkit&type=Date)](https://star-history.com/#sibukixxx/duckdb-load-testing-toolkit&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=sibukixxx/load-inspector&type=Date)](https://star-history.com/#sibukixxx/load-inspector&Date)
 
 ## License
 
