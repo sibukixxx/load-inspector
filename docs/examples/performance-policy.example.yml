@@ -1,4 +1,4 @@
-# Example performance policy for duckload gate / POST /api/v1/analysis/gate.
+# Example performance policy for load-inspector gate / POST /api/v1/analysis/gate.
 #
 # Copy this file, rename it (e.g. performance-policy.yml), and adjust the
 # numbers to your own service's traffic and latency profile — these values
@@ -38,7 +38,7 @@ defaults:
 
 # Per-endpoint overrides. Each entry merges into `defaults` field by
 # field — an endpoint below still inherits every default field it does
-# not explicitly override. Endpoint keys must match the value duckload
+# not explicitly override. Endpoint keys must match the value load-inspector
 # endpoints (or GET /api/v1/analysis/endpoints) reports as "endpoint":
 # the k6 request `name` tag when set, otherwise the raw url.
 endpoints:
