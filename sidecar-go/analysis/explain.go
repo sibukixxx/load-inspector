@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/analysis/queries"
+	"github.com/sibukixxx/load-inspector/sidecar-go/analysis/queries"
 )
 
 // Explanation is a structured, deterministic "performance evidence
