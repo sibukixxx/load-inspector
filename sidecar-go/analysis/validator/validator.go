@@ -14,7 +14,7 @@ import (
 	"github.com/sibukixxx/load-inspector/sidecar-go/analysis/queries"
 )
 
-// Result carries everything a caller (a test, `duckload check-analysis`, or
+// Result carries everything a caller (a test, `load-inspector check-analysis`, or
 // CI) needs to report on one query's validation.
 type Result struct {
 	QueryID       string
