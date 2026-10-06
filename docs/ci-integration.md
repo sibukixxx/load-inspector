@@ -1,6 +1,6 @@
 # CI Integration
 
-The [performance gate](performance-gate.md) is a CLI (`duckload gate`) and
+The [performance gate](performance-gate.md) is a CLI (`load-inspector gate`) and
 an HTTP endpoint (`POST /api/v1/analysis/gate`) — not a GitHub Action, a
 GitHub App, or a Marketplace listing. Every decision (PASS/WARN/FAIL) is
 made by `sidecar-go/analysis/gate`, the same package the CLI and the HTTP
@@ -11,7 +11,7 @@ k6
  ↓
 result.duckdb
  ↓
-duckload gate
+load-inspector gate
  ↓
 exit code
  ↓
@@ -30,13 +30,13 @@ code."
 Any CI integration boils down to the same three steps, regardless of
 provider:
 
-1. **Build `duckload`** (or use a pre-built binary — it's a static Go binary with no runtime dependency beyond the DuckDB library it statically links).
+1. **Build `load-inspector`** (or use a pre-built binary — it's a static Go binary with no runtime dependency beyond the DuckDB library it statically links).
 2. **Produce two `.duckdb` files**: a `current` result (from the code under review) and a `baseline` result (a known-good prior run). How you get these is entirely up to your pipeline — see "Baseline management" below.
-3. **Run `duckload gate`** and act on its exit code — see the
+3. **Run `load-inspector gate`** and act on its exit code — see the
    [exit code contract](performance-gate.md#exit-code-contract).
 
 ```bash
-duckload gate \
+load-inspector gate \
   --current current.duckdb \
   --baseline baseline.duckdb \
   --policy performance-policy.yml
@@ -50,7 +50,7 @@ A worked example lives at
 It is not under `.github/workflows/` — copy it there yourself
 (e.g. `.github/workflows/performance-gate.yml`) and fill in the two
 placeholder steps for however your project produces its two `.duckdb`
-files. The workflow itself does nothing but call `duckload gate` and
+files. The workflow itself does nothing but call `load-inspector gate` and
 report its result; no gating logic lives in the YAML.
 
 It demonstrates the two optional pieces below: writing a
@@ -61,11 +61,11 @@ exists.
 
 ### GitHub Step Summary
 
-`duckload gate --format human`'s output is plain text meant for a
+`load-inspector gate --format human`'s output is plain text meant for a
 terminal, and doubles as Markdown-safe content for a step summary:
 
 ```bash
-./duckload gate --current current.duckdb --baseline baseline.duckdb \
+./load-inspector gate --current current.duckdb --baseline baseline.duckdb \
   --policy performance-policy.yml --format human | tee performance-report.md
 echo '```' | cat - performance-report.md > /tmp/x && mv /tmp/x performance-report.md # optional: wrap as a code block
 cat performance-report.md >> "$GITHUB_STEP_SUMMARY"
@@ -76,7 +76,7 @@ cat performance-report.md >> "$GITHUB_STEP_SUMMARY"
 Uploading the two `.duckdb` files alongside the JSON and human reports
 means "why did this PR fail?" can be answered after the fact — including
 loading `current.duckdb` in [the browser viewer](../README.md#browser-viewer)
-or re-running `duckload diagnose` against it — without re-running the load
+or re-running `load-inspector diagnose` against it — without re-running the load
 test. This is the same "keep the result as a portable file" idea the rest
 of the project already relies on, applied to CI artifacts instead of
 S3-compatible storage.
@@ -87,9 +87,9 @@ Nothing above is GitHub-specific except the two optional reporting steps.
 For GitLab CI, CircleCI, Jenkins, or a plain shell script:
 
 ```sh
-cd sidecar-go && go build -o duckload ./cmd/duckload
+cd sidecar-go && go build -o load-inspector ./cmd/load-inspector
 # ... produce current.duckdb and baseline.duckdb however your pipeline does ...
-./duckload gate --current current.duckdb --baseline baseline.duckdb \
+./load-inspector gate --current current.duckdb --baseline baseline.duckdb \
   --policy performance-policy.yml --format json > performance-report.json
 code=$?
 cat performance-report.json # or upload it as your provider's artifact mechanism
@@ -100,7 +100,7 @@ exit $code
 
 P1 requires supporting an **explicit baseline** — a `.duckdb` file (or a
 `run_id` within one) you name directly — and that is what
-`duckload gate --baseline` does. Two ways to get that file into a CI job
+`load-inspector gate --baseline` does. Two ways to get that file into a CI job
 without building a new artifact-management system:
 
 - **A separate result file per run** (the common case): each sidecar
