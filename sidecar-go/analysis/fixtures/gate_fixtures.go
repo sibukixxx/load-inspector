@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/models"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/storage"
+	"github.com/sibukixxx/load-inspector/sidecar-go/models"
+	"github.com/sibukixxx/load-inspector/sidecar-go/storage"
 )
 
 // GateScenario names a synthetic fixture built specifically to exercise the
