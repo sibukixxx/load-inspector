@@ -6,9 +6,9 @@ import (
 
 	_ "github.com/duckdb/duckdb-go/v2"
 
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/analysis"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/analysis/fixtures"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/analysis/policy"
+	"github.com/sibukixxx/load-inspector/sidecar-go/analysis"
+	"github.com/sibukixxx/load-inspector/sidecar-go/analysis/fixtures"
+	"github.com/sibukixxx/load-inspector/sidecar-go/analysis/policy"
 )
 
 func ptrF(v float64) *float64 { return &v }
