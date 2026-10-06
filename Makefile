@@ -1,6 +1,6 @@
 SIDECAR_DIR := sidecar-go
 BINARY      := $(SIDECAR_DIR)/duckdb-sidecar
-CLI_BINARY  := $(SIDECAR_DIR)/duckload
+CLI_BINARY  := $(SIDECAR_DIR)/load-inspector
 
 .PHONY: build-sidecar build-cli test test-unit test-e2e test-analysis test-gate bench-gate lint fmt fmt-check vet clean docker-build ci zip
 
@@ -10,7 +10,7 @@ build-sidecar:
 	cd $(SIDECAR_DIR) && go build -o duckdb-sidecar
 
 build-cli:
-	cd $(SIDECAR_DIR) && go build -o duckload ./cmd/duckload
+	cd $(SIDECAR_DIR) && go build -o load-inspector ./cmd/load-inspector
 
 # ── Test ───────────────────────────────────────────────────────────────────────
 
@@ -37,7 +37,7 @@ test-analysis:
 	cd $(SIDECAR_DIR) && go test \
 	  ./analysis/queries/... ./analysis/fixtures/... ./analysis/validator/... \
 	  -v -race -count=1
-	cd $(SIDECAR_DIR) && go run ./cmd/duckload check-analysis
+	cd $(SIDECAR_DIR) && go run ./cmd/load-inspector check-analysis
 
 # Performance gate: policy schema, evaluation engine, and CLI/API
 # integration, run against every synthetic gate fixture (see
@@ -85,4 +85,4 @@ docker-build:
 	cd $(SIDECAR_DIR) && docker build -t duckdb-sidecar .
 
 zip:
-	cd /mnt/data && zip -r duckdb-load-testing-toolkit.zip duckdb-load-testing-toolkit
+	cd /mnt/data && zip -r load-inspector.zip load-inspector
