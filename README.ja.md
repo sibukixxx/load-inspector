@@ -234,7 +234,7 @@ docker compose up -d
 # 起動確認（両方が running になるまで待機）
 docker compose ps
 # NAME             STATUS
-# duckdb-sidecar   Up (healthy)
+# load-inspector-sidecar   Up (healthy)
 # rustfs           Up (healthy)
 
 # ログ確認（問題がある場合）
@@ -336,7 +336,7 @@ docker exec rustfs mc mb local/loadtest
 cd sidecar-go
 
 # ビルド
-go build -o duckdb-sidecar
+go build -o load-inspector-sidecar
 
 # テスト実行（オプション）
 go test ./...
@@ -348,7 +348,7 @@ S3_SECRET_KEY=rustfs-password \
 S3_BUCKET=loadtest \
 RUN_ID=test-run \
 POD_NAME=local-pod \
-./duckdb-sidecar
+./load-inspector-sidecar
 
 # 別ターミナルでヘルスチェック
 curl http://localhost:8081/api/v1/health
@@ -390,7 +390,7 @@ Kubernetes環境でRustFS（またはMinIO）をS3互換ストレージとして
 
 ```bash
 # イメージ名を設定（自分のレジストリに変更）
-export IMAGE_NAME=your-registry/duckdb-sidecar:latest
+export IMAGE_NAME=your-registry/load-inspector-sidecar:latest
 
 # ビルドとプッシュ
 ./scripts/build_and_push_sidecar.sh
@@ -474,7 +474,7 @@ spec:
             memory: "512Mi"
 
       - name: sidecar
-        image: your-registry/duckdb-sidecar:latest  # Step 1でプッシュしたイメージ
+        image: your-registry/load-inspector-sidecar:latest  # Step 1でプッシュしたイメージ
         env:
         - name: RUN_ID
           value: "run-20240101-001"
@@ -666,7 +666,7 @@ spec:
           mountPath: /scripts
 
       - name: sidecar
-        image: your-ecr-registry/duckdb-sidecar:latest
+        image: your-ecr-registry/load-inspector-sidecar:latest
         env:
         - name: RUN_ID
           value: "prod-run-20240101"
@@ -1054,7 +1054,7 @@ curl -X POST http://localhost:8081/api/v1/analysis/diagnose \
   -d '{"baseline_run_id": "baseline-v1.0", "current_run_id": "after-optimization"}'
 ```
 
-または `duckdb-sidecar` を起動せずに、ダウンロード済みの `.duckdb` ファイルに対して `load-inspector` CLIで直接診断する：
+または `load-inspector-sidecar` を起動せずに、ダウンロード済みの `.duckdb` ファイルに対して `load-inspector` CLIで直接診断する：
 
 ```bash
 load-inspector diagnose result.duckdb --baseline baseline-v1.0 --current after-optimization
