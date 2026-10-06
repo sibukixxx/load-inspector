@@ -18,10 +18,10 @@ import (
 
 	_ "github.com/duckdb/duckdb-go/v2"
 
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/analysis"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/analysis/gate"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/analysis/policy"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/storage"
+	"github.com/sibukixxx/load-inspector/sidecar-go/analysis"
+	"github.com/sibukixxx/load-inspector/sidecar-go/analysis/gate"
+	"github.com/sibukixxx/load-inspector/sidecar-go/analysis/policy"
+	"github.com/sibukixxx/load-inspector/sidecar-go/storage"
 )
 
 // buildBenchDB bulk-loads n synthetic requests, spread across a handful of
