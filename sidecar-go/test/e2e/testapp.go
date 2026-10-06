@@ -8,10 +8,10 @@ import (
 	"testing"
 
 	_ "github.com/duckdb/duckdb-go/v2"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/handlers"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/realtime"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/server"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/storage"
+	"github.com/sibukixxx/load-inspector/sidecar-go/handlers"
+	"github.com/sibukixxx/load-inspector/sidecar-go/realtime"
+	"github.com/sibukixxx/load-inspector/sidecar-go/server"
+	"github.com/sibukixxx/load-inspector/sidecar-go/storage"
 )
 
 // TestApp is a fully initialized sidecar HTTP server for E2E testing.
