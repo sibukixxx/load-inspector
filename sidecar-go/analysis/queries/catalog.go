@@ -186,7 +186,7 @@ func MustGet(id string) Query {
 }
 
 // All returns every catalog entry, sorted by ID, for validation and CLI
-// introspection (e.g. `duckload check-analysis`).
+// introspection (e.g. `load-inspector check-analysis`).
 func All() []Query {
 	out := make([]Query, 0, len(catalog))
 	for _, q := range catalog {
