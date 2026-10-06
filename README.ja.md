@@ -1,4 +1,4 @@
-# DuckDB Load Testing Toolkit
+# Load Inspector
 
 [English](README.md) | 日本語 | [简体中文](README.zh-CN.md)
 
@@ -145,7 +145,7 @@ RustFS/MinIO/AWS S3のいずれにも対応することで：
 │   │   ├── fixtures/        # CI用の決定論的な合成性能・Gateフィクスチャ
 │   │   ├── gate/            # Performance Gateの判定エンジン（PASS/WARN/FAIL）
 │   │   └── policy/          # Performance Policyのスキーマとローダー
-│   ├── cmd/duckload/        # duckload CLI（.duckdbファイルをオフライン分析、gateコマンド含む）
+│   ├── cmd/load-inspector/        # load-inspector CLI（.duckdbファイルをオフライン分析、gateコマンド含む）
 │   ├── orchestrator/        # 分散オーケストレーション
 │   └── realtime/            # WebSocketリアルタイム監視
 ├── docs/                    # Performance Gate/Policy/CI統合のリファレンスとサンプル
@@ -848,7 +848,7 @@ websocat ws://localhost:8081/ws
 Performance Gate（`sidecar-go/analysis/gate`）は、エンドポイント分析の結果を **PASS** / **WARN** / **FAIL** という単一の機械判定可能な結論に変換する。判定ルールはプレーンなYAML/JSONのポリシーファイルで設定するため、CI固有の判定ロジックを一切書かずに、実際の性能劣化が発生した場合にのみマージをブロックできる。
 
 ```bash
-duckload gate \
+load-inspector gate \
   --current current.duckdb --baseline baseline.duckdb \
   --policy performance-policy.yml
 ```
@@ -866,33 +866,33 @@ FAIL    /api/users               p95 (regression)
 - **1指標につき2種類の独立した判定**: 絶対値によるPerformance Budget（例:「p95は500ms以下」。baseline不要）と、baselineとの相対比較による回帰判定。同じエンドポイントで片方だけ失敗することもある
 - **ノイズに強い設計**: 相対しきい値・絶対値（ミリ秒）の下限・最小サンプル数の3つがすべて揃って初めて回帰と判定する。詳細は [`docs/performance-gate.md`](docs/performance-gate.md#noise-resistance)
 - **根拠不十分なデータからは判定しない**: サンプル数不足やbaselineに存在しないエンドポイントは `UNKNOWN` として扱われる（`unknown_treatment` で挙動を設定可能）。誤ったPASSやFAILを返すことはない
-- **判定エンジンは1つ、入口は3つ**: `duckload gate`・`POST /api/v1/analysis/gate`・このパッケージ自身のテストはすべて同じ `gate.Evaluate` を呼び出す。CIでの失敗は常に同じコマンドでローカル再現できる
+- **判定エンジンは1つ、入口は3つ**: `load-inspector gate`・`POST /api/v1/analysis/gate`・このパッケージ自身のテストはすべて同じ `gate.Evaluate` を呼び出す。CIでの失敗は常に同じコマンドでローカル再現できる
 - **Exit code契約**: `0` = PASS（デフォルトではWARNも含む）、`1` = FAIL（`--warn-exit-code 1` 指定時はWARNも含む）、`2` = ツール/入力エラー（性能判定ではない）。詳細は [`docs/performance-gate.md`](docs/performance-gate.md#exit-code-contract)
 
 詳細な仕様は [`docs/performance-gate.md`](docs/performance-gate.md)、ポリシーのスキーマは [`docs/performance-policy.md`](docs/performance-policy.md)（そのままコピーできる[サンプル](docs/examples/performance-policy.example.yml)付き）、CIへの組み込み方は [`docs/ci-integration.md`](docs/ci-integration.md)（[GitHub Actionsのサンプル](docs/examples/github-actions-performance-gate.yml)を含む。`.github/workflows/` への配置は各自で行うこと）を参照。
 
-## CLI（duckload）
+## CLI（load-inspector）
 
-`duckload` はSidecarを起動せずに `.duckdb` 結果ファイルを直接分析するCLI。ダウンロード済み・共有済みのファイルをオフラインで調査する場合に使う。
+`load-inspector` はSidecarを起動せずに `.duckdb` 結果ファイルを直接分析するCLI。ダウンロード済み・共有済みのファイルをオフラインで調査する場合に使う。
 
 ```bash
 cd sidecar-go
-go build -o duckload ./cmd/duckload
+go build -o load-inspector ./cmd/load-inspector
 
 # summary/endpoints/compare/diagnoseは位置引数に.duckdbファイルを1つ取り、
 # --baseline/--currentはそのファイル内のRUN_IDを指す。
-./duckload summary result.duckdb --run-id test-run
-./duckload endpoints result.duckdb --run-id test-run
-./duckload compare result.duckdb --baseline baseline-v1.0 --current after-optimization
-./duckload diagnose result.duckdb --baseline baseline-v1.0 --current after-optimization
-./duckload check-analysis   # 全ての合成フィクスチャに対してカタログ内の全分析SQLを検証する
+./load-inspector summary result.duckdb --run-id test-run
+./load-inspector endpoints result.duckdb --run-id test-run
+./load-inspector compare result.duckdb --baseline baseline-v1.0 --current after-optimization
+./load-inspector diagnose result.duckdb --baseline baseline-v1.0 --current after-optimization
+./load-inspector check-analysis   # 全ての合成フィクスチャに対してカタログ内の全分析SQLを検証する
 
 # gateだけは例外: --baseline/--currentはファイルパスを指す（位置引数はない）。
 # run_idが1つしかないファイルは自動検出される。詳細は上記「Performance Gate」
 # 節を参照。--run-id/--baseline-run-idを付けるとrun_idを明示的に指定でき、
 # 下記のように同じファイルを両方に使い回すこともできる。
-./duckload gate --current current.duckdb --baseline baseline.duckdb --policy performance-policy.yml
-./duckload gate --current result.duckdb --run-id after-optimization --baseline result.duckdb --baseline-run-id baseline-v1.0 --policy performance-policy.yml --format json
+./load-inspector gate --current current.duckdb --baseline baseline.duckdb --policy performance-policy.yml
+./load-inspector gate --current result.duckdb --run-id after-optimization --baseline result.duckdb --baseline-run-id baseline-v1.0 --policy performance-policy.yml --format json
 ```
 
 ## DuckDBスキーマ（拡張版）
@@ -1054,10 +1054,10 @@ curl -X POST http://localhost:8081/api/v1/analysis/diagnose \
   -d '{"baseline_run_id": "baseline-v1.0", "current_run_id": "after-optimization"}'
 ```
 
-または `duckdb-sidecar` を起動せずに、ダウンロード済みの `.duckdb` ファイルに対して `duckload` CLIで直接診断する：
+または `duckdb-sidecar` を起動せずに、ダウンロード済みの `.duckdb` ファイルに対して `load-inspector` CLIで直接診断する：
 
 ```bash
-duckload diagnose result.duckdb --baseline baseline-v1.0 --current after-optimization
+load-inspector diagnose result.duckdb --baseline baseline-v1.0 --current after-optimization
 ```
 
 ---
