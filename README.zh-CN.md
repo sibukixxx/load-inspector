@@ -2,7 +2,7 @@
 
 [English](README.md) | [日本語](README.ja.md) | 简体中文
 
-[![CI](https://github.com/sibukixxx/duckdb-load-testing-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/sibukixxx/duckdb-load-testing-toolkit/actions/workflows/ci.yml)
+[![CI](https://github.com/sibukixxx/load-inspector/actions/workflows/ci.yml/badge.svg)](https://github.com/sibukixxx/load-inspector/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Go Version](https://img.shields.io/badge/Go-1.24%2B-00ADD8?logo=go)](sidecar-go/go.mod)
 
@@ -54,7 +54,7 @@ k6 脚本将请求指标发送给 Go Sidecar。Sidecar 在内存中缓冲数据�
 | `sidecar-go/analysis/gate/` | 性能门禁的判定引擎（PASS/WARN/FAIL），不依赖任何 CI 提供方 |
 | `sidecar-go/analysis/policy/` | 性能策略的 Schema（YAML/JSON）与加载器 |
 | `sidecar-go/analysis/fixtures/` | 确定性的合成性能夹具，无需真实负载测试即可验证分析与门禁功能 |
-| `sidecar-go/cmd/duckload/` | `duckload`——直接分析 `.duckdb` 结果文件的离线命令行工具 |
+| `sidecar-go/cmd/load-inspector/` | `load-inspector`——直接分析 `.duckdb` 结果文件的离线命令行工具 |
 | `docs/` | 性能门禁、策略 Schema、CI 集成参考文档；可直接复制使用的示例策略与 GitHub Actions 工作流 |
 | `k6/` | 基础及高级 k6 场景，以及 Kubernetes 部署清单 |
 | `aggregate-job/` | 合并分布式 DuckDB 结果文件的 Kubernetes Job |
@@ -132,8 +132,8 @@ curl -X POST http://localhost:8081/api/v1/analysis/diagnose \
 ### 6. 用性能门禁判定本次构建
 
 ```bash
-cd sidecar-go && go build -o duckload ./cmd/duckload
-./duckload gate \
+cd sidecar-go && go build -o load-inspector ./cmd/load-inspector
+./load-inspector gate \
   --current result.duckdb --run-id after-change \
   --baseline result.duckdb --baseline-run-id quickstart \
   --policy ../docs/examples/performance-policy.example.yml
@@ -164,7 +164,7 @@ docker compose stop
 性能门禁（`sidecar-go/analysis/gate`）把一次接口分析转化为单一的、可供机器判断的结论——**PASS**、**WARN** 或 **FAIL**——由一份纯 YAML/JSON 策略文件驱动，因此 CI 无需任何厂商特定的判定逻辑即可在真正发生性能回归时阻止合并：
 
 ```bash
-duckload gate \
+load-inspector gate \
   --current current.duckdb --baseline baseline.duckdb \
   --policy performance-policy.yml
 ```
@@ -182,33 +182,33 @@ FAIL    /api/users               p95 (regression)
 - **每个指标两项独立检查**：绝对的 **Performance Budget**（例如"p95 必须低于 500ms"，无需基线）与相对基线的**回归**检查——同一接口可以一项失败、另一项通过。
 - **天生抗噪声**：相对阈值、绝对毫秒级下限、最小样本量三者必须同时满足才会被判定为回归——详见 [`docs/performance-gate.md`](docs/performance-gate.md#noise-resistance)。
 - **绝不用不足的证据妄下判断**：样本不足，或基线中不存在的接口，都会得到 `UNKNOWN` 结论（可通过 `unknown_treatment` 配置），而不是误判为 PASS 或 FAIL。
-- **一套判定引擎，三个入口**：`duckload gate`、`POST /api/v1/analysis/gate` 以及该包自身的测试，调用的都是同一个 `gate.Evaluate`——CI 中的失败结果永远可以用同一条命令在本地复现。
+- **一套判定引擎，三个入口**：`load-inspector gate`、`POST /api/v1/analysis/gate` 以及该包自身的测试，调用的都是同一个 `gate.Evaluate`——CI 中的失败结果永远可以用同一条命令在本地复现。
 - **退出码约定**：`0` = PASS（或默认情况下的 WARN）、`1` = FAIL（或使用 `--warn-exit-code 1` 时的 WARN）、`2` = 工具/输入错误（绝不代表性能判定）——详见 [`docs/performance-gate.md`](docs/performance-gate.md#exit-code-contract)。
 
 完整约定见 [`docs/performance-gate.md`](docs/performance-gate.md)，策略 Schema 见 [`docs/performance-policy.md`](docs/performance-policy.md)（附带可直接复制的[示例](docs/examples/performance-policy.example.yml)），CI 接入方式见 [`docs/ci-integration.md`](docs/ci-integration.md)（其中包含一份完整的 [GitHub Actions 示例](docs/examples/github-actions-performance-gate.yml)——请自行复制到 `.github/workflows/` 下）。
 
-## CLI（`duckload`）
+## CLI（`load-inspector`）
 
-`duckload` 可以直接分析 `.duckdb` 结果文件，无需运行 Sidecar——适合文件已下载或共享之后使用。
+`load-inspector` 可以直接分析 `.duckdb` 结果文件，无需运行 Sidecar——适合文件已下载或共享之后使用。
 
 ```bash
 cd sidecar-go
-go build -o duckload ./cmd/duckload
+go build -o load-inspector ./cmd/load-inspector
 
 # summary/endpoints/compare/diagnose 的位置参数是一个 .duckdb 文件，
 # --baseline/--current 在这些子命令里指的是该文件内的 RUN_ID。
-./duckload summary result.duckdb --run-id quickstart
-./duckload endpoints result.duckdb --run-id quickstart
-./duckload compare result.duckdb --baseline quickstart --current after-change
-./duckload diagnose result.duckdb --baseline quickstart --current after-change
-./duckload check-analysis   # 针对每个合成夹具验证所有分析查询
+./load-inspector summary result.duckdb --run-id quickstart
+./load-inspector endpoints result.duckdb --run-id quickstart
+./load-inspector compare result.duckdb --baseline quickstart --current after-change
+./load-inspector diagnose result.duckdb --baseline quickstart --current after-change
+./load-inspector check-analysis   # 针对每个合成夹具验证所有分析查询
 
 # gate 是唯一的例外：--baseline/--current 指的是文件路径（没有位置参数），
 # 若文件中只有一个 run_id 会自动识别；详见上方"性能门禁"一节。
 # 加上 --run-id/--baseline-run-id 可以显式指定 run_id，
 # 也可以像下面这样让两者共用同一个文件。
-./duckload gate --current current.duckdb --baseline baseline.duckdb --policy performance-policy.yml
-./duckload gate --current result.duckdb --run-id after-change --baseline result.duckdb --baseline-run-id quickstart --policy performance-policy.yml --format json
+./load-inspector gate --current current.duckdb --baseline baseline.duckdb --policy performance-policy.yml
+./load-inspector gate --current result.duckdb --run-id after-change --baseline result.duckdb --baseline-run-id quickstart --policy performance-policy.yml --format json
 ```
 
 ## 浏览器结果查看器
@@ -225,7 +225,7 @@ npm start
 - **Endpoints**——每个接口的请求/错误数和延迟百分位数。
 - **Regression**——基线与当前测试之间每个接口的 p95 与错误率差值。
 - **Timing Breakdown**——单个接口的 DNS/TCP/TLS/TTFB/传输平均耗时，基线与当前对比。
-- **Gate**——一个最简化的客户端 PASS/WARN/FAIL 检查（一个 p95 回归阈值、一个错误率预算），无需离开浏览器即可对结果做初步判断；完整策略 Schema 请使用 `duckload gate` 或 HTTP 接口。
+- **Gate**——一个最简化的客户端 PASS/WARN/FAIL 检查（一个 p95 回归阈值、一个错误率预算），无需离开浏览器即可对结果做初步判断；完整策略 Schema 请使用 `load-inspector gate` 或 HTTP 接口。
 
 ## Sidecar API
 
@@ -269,7 +269,7 @@ Sidecar 通过环境变量进行配置。
 
 ```bash
 make build-sidecar  # 构建 Go Sidecar
-make build-cli      # 构建 duckload 命令行工具
+make build-cli      # 构建 load-inspector 命令行工具
 make test-unit      # 使用 race detector 运行单元测试
 make test-e2e       # 运行端到端测试
 make test-analysis  # 针对每个合成夹具验证所有分析 SQL 查询
