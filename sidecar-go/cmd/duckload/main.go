@@ -18,12 +18,12 @@ import (
 
 	_ "github.com/duckdb/duckdb-go/v2"
 
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/analysis"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/analysis/fixtures"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/analysis/gate"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/analysis/policy"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/analysis/queries"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/analysis/validator"
+	"github.com/sibukixxx/load-inspector/sidecar-go/analysis"
+	"github.com/sibukixxx/load-inspector/sidecar-go/analysis/fixtures"
+	"github.com/sibukixxx/load-inspector/sidecar-go/analysis/gate"
+	"github.com/sibukixxx/load-inspector/sidecar-go/analysis/policy"
+	"github.com/sibukixxx/load-inspector/sidecar-go/analysis/queries"
+	"github.com/sibukixxx/load-inspector/sidecar-go/analysis/validator"
 )
 
 // parseArgs splits args into flags (--name value) and positional arguments
