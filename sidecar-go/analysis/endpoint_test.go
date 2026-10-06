@@ -5,7 +5,7 @@ import (
 
 	_ "github.com/duckdb/duckdb-go/v2"
 
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/analysis/fixtures"
+	"github.com/sibukixxx/load-inspector/sidecar-go/analysis/fixtures"
 )
 
 func TestEndpointAnalyzer_GetEndpointStats(t *testing.T) {
