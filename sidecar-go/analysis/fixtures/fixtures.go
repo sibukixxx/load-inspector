@@ -12,8 +12,8 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/models"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/storage"
+	"github.com/sibukixxx/load-inspector/sidecar-go/models"
+	"github.com/sibukixxx/load-inspector/sidecar-go/storage"
 )
 
 // Scenario names a synthetic performance fixture. Each one models a
