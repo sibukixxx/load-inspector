@@ -29,7 +29,7 @@ spec:
           - name: scripts
             mountPath: /scripts
       - name: sidecar
-        image: yourrepo/duckdb-sidecar:latest
+        image: yourrepo/load-inspector-sidecar:latest
         env:
         - name: RUN_ID
           value: "run-{{RUN_ID}}"
