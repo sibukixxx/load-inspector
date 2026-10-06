@@ -1,5 +1,5 @@
 SIDECAR_DIR := sidecar-go
-BINARY      := $(SIDECAR_DIR)/duckdb-sidecar
+BINARY      := $(SIDECAR_DIR)/load-inspector-sidecar
 CLI_BINARY  := $(SIDECAR_DIR)/load-inspector
 
 .PHONY: build-sidecar build-cli test test-unit test-e2e test-analysis test-gate bench-gate lint fmt fmt-check vet clean docker-build ci zip
@@ -7,7 +7,7 @@ CLI_BINARY  := $(SIDECAR_DIR)/load-inspector
 # ── Build ──────────────────────────────────────────────────────────────────────
 
 build-sidecar:
-	cd $(SIDECAR_DIR) && go build -o duckdb-sidecar
+	cd $(SIDECAR_DIR) && go build -o load-inspector-sidecar
 
 build-cli:
 	cd $(SIDECAR_DIR) && go build -o load-inspector ./cmd/load-inspector
@@ -82,7 +82,7 @@ clean:
 	rm -rf $(SIDECAR_DIR)/data/*.duckdb $(SIDECAR_DIR)/data/*.duckdb.wal
 
 docker-build:
-	cd $(SIDECAR_DIR) && docker build -t duckdb-sidecar .
+	cd $(SIDECAR_DIR) && docker build -t load-inspector-sidecar .
 
 zip:
 	cd /mnt/data && zip -r load-inspector.zip load-inspector
