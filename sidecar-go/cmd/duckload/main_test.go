@@ -10,9 +10,9 @@ import (
 
 	_ "github.com/duckdb/duckdb-go/v2"
 
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/analysis/fixtures"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/analysis/gate"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/storage"
+	"github.com/sibukixxx/load-inspector/sidecar-go/analysis/fixtures"
+	"github.com/sibukixxx/load-inspector/sidecar-go/analysis/gate"
+	"github.com/sibukixxx/load-inspector/sidecar-go/storage"
 )
 
 // buildResultFile writes a scenario's fixture events to a real .duckdb file
