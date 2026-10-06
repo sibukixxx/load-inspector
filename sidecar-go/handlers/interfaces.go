@@ -3,8 +3,8 @@ package handlers
 import (
 	"context"
 
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/models"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/storage"
+	"github.com/sibukixxx/load-inspector/sidecar-go/models"
+	"github.com/sibukixxx/load-inspector/sidecar-go/storage"
 )
 
 // Storage defines the operations handlers need from a metrics store.
