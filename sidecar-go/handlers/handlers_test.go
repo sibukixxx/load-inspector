@@ -9,8 +9,8 @@ import (
 	"testing"
 
 	_ "github.com/duckdb/duckdb-go/v2"
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/models"
-	duckdbstorage "github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/storage"
+	"github.com/sibukixxx/load-inspector/sidecar-go/models"
+	duckdbstorage "github.com/sibukixxx/load-inspector/sidecar-go/storage"
 )
 
 func setupTestHandler(t *testing.T) (*Handlers, func()) {
