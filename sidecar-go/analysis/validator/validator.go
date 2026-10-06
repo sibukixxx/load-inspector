@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/analysis/queries"
+	"github.com/sibukixxx/load-inspector/sidecar-go/analysis/queries"
 )
 
 // Result carries everything a caller (a test, `duckload check-analysis`, or
