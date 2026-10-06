@@ -8,7 +8,7 @@ RUN go mod download
 
 # ソースコードのコピーとビルド
 COPY . .
-RUN CGO_ENABLED=1 GOOS=linux go build -o duckdb-sidecar
+RUN CGO_ENABLED=1 GOOS=linux go build -o load-inspector-sidecar
 
 # 実行用イメージ
 FROM debian:bookworm-slim
@@ -19,11 +19,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-COPY --from=builder /app/duckdb-sidecar .
+COPY --from=builder /app/load-inspector-sidecar .
 
 # データディレクトリ作成
 RUN mkdir -p /data
 
 EXPOSE 8081
 
-CMD ["./duckdb-sidecar"]
+CMD ["./load-inspector-sidecar"]
