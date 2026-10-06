@@ -328,11 +328,11 @@ func (h *AnalysisHandlers) HandleDiagnose(w http.ResponseWriter, r *http.Request
 }
 
 // GateRequest represents a performance gate evaluation request. Policy is
-// the same schema `duckload gate --policy` reads from a file (see
+// the same schema `load-inspector gate --policy` reads from a file (see
 // analysis/policy), embedded directly as JSON — policy.Parse accepts it
 // unchanged since JSON is valid YAML. CurrentRunID and BaselineRunID are
 // resolved against this sidecar's own database; evaluating a baseline
-// held in a separate file is a CLI-only capability (see `duckload gate
+// held in a separate file is a CLI-only capability (see `load-inspector gate
 // --baseline <file>`), since an HTTP request has only one database to
 // query. Omit BaselineRunID to run in Performance-Budget-only mode.
 type GateRequest struct {
@@ -343,7 +343,7 @@ type GateRequest struct {
 
 // HandleGate evaluates the performance gate for one run (and, optionally,
 // a baseline comparison) against an embedded policy, returning the same
-// gate.Result shape `duckload gate --format json` prints. This is the same
+// gate.Result shape `load-inspector gate --format json` prints. This is the same
 // evaluation engine, not a reimplementation: see analysis/gate.
 func (h *AnalysisHandlers) HandleGate(w http.ResponseWriter, r *http.Request) {
 	var req GateRequest
