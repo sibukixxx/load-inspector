@@ -2,6 +2,43 @@
 
 [English](README.md) | 日本語 | [简体中文](README.zh-CN.md)
 
+<!-- oss-readme-intro:v1 -->
+Load Inspector は、k6 のリクエスト単位メトリクスを DuckDB に保存し、**負荷テスト後の比較・回帰検知・ボトルネック診断・CI性能ゲート**まで行うツールです。
+
+## できること
+
+- k6 のrequest-level metricsを保存
+- baseline/currentの比較とendpoint回帰検知
+- DNS / TCP / TLS / TTFB / transfer の悪化箇所を診断
+- YAML/JSON policyによる PASS / WARN / FAIL 判定
+- 分散結果の統合、S3互換ストレージへの保存
+- `.duckdb` をCLIまたはブラウザで後から分析
+
+## インストール
+
+CLIだけなら Go 1.24+ で動かせます。
+
+```sh
+git clone https://github.com/sibukixxx/load-inspector.git
+cd load-inspector/sidecar-go
+go build -o load-inspector ./cmd/load-inspector
+./load-inspector --help
+```
+
+収集まで含めて試す場合は Docker Compose と k6 を使用します。
+
+```sh
+docker compose up -d
+
+SIDECAR_BASE=http://localhost:8081 \
+TARGET=https://test.k6.io \
+RUN_ID=quickstart \
+k6 run k6/k6-script.js
+```
+
+**「負荷テストが遅くなったが、どこが何ms悪化したのかを後から調べたい」**ときや、性能劣化をCIで再現可能に判定したいときに使います。
+<!-- /oss-readme-intro -->
+
 k6 + Kubernetes + DuckDB を組み合わせた負荷テストパイプラインのテンプレートです。
 
 ---
