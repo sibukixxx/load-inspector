@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/sibukixxx/duckdb-load-testing-toolkit/sidecar-go/models"
+	"github.com/sibukixxx/load-inspector/sidecar-go/models"
 )
 
 // DuckDBStorage handles DuckDB operations for metrics storage
