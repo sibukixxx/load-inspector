@@ -2,7 +2,7 @@ SIDECAR_DIR := sidecar-go
 BINARY      := $(SIDECAR_DIR)/load-inspector-sidecar
 CLI_BINARY  := $(SIDECAR_DIR)/load-inspector
 
-.PHONY: build-sidecar build-cli test test-unit test-e2e test-analysis test-gate bench-gate lint fmt fmt-check vet clean docker-build ci zip
+.PHONY: build-sidecar build-cli test test-unit test-e2e test-analysis test-gate bench-gate lint fmt fmt-check vet release-check clean docker-build ci zip
 
 # ── Build ──────────────────────────────────────────────────────────────────────
 
@@ -74,6 +74,9 @@ lint:
 
 # Run vet + unit tests (fast CI gate)
 ci: fmt-check vet test-unit
+
+# Deterministic public-release gate. Does not require cloud/provider credentials.
+release-check: fmt-check vet lint test-unit test-analysis test-gate build-cli build-sidecar
 
 # ── Maintenance ────────────────────────────────────────────────────────────────
 
