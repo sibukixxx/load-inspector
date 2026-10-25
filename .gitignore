@@ -7,8 +7,8 @@
 .DS_Store
 
 # Go
-sidecar-go/duckdb-sidecar
-sidecar-go/duckload
+sidecar-go/load-inspector-sidecar
+sidecar-go/load-inspector
 
 # Data files
 *.duckdb
