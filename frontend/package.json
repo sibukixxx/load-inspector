@@ -8,6 +8,10 @@
   },
   "scripts": {
     "start": "parcel index.html --port 8080",
-    "build": "parcel build index.html"
+    "build": "parcel build index.html",
+    "deploy:cf": "npm run build && wrangler deploy"
+  },
+  "devDependencies": {
+    "parcel": "^2.15.4"
   }
 }
