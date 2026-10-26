@@ -1,24 +1,24 @@
-# Migration audit — load-inspector
+# OSS migration verification — load-inspector
 
-監査日: 2026-10-25。作業中の記録。未実施・未完了を成功扱いしない。
+検証日: 2026-10-26。実装コードの検証対象head: `473e5df1f4f6b9fdea5dfe9746096797bd7f4804`。本書の追記commitは資料のみ。
 
-## 正本と比較対象
+## 実装と実行結果
 
-- 正本: sibukixxx/load-inspector, main `21bce80a19cd55a54868ede03f62b4a1767eaad3`
-- 旧実装: sibukixxx/duckdb-load-testing-toolkit, main `ad4495e00fa0dc657284b0b8b3e29744ec8705be`
-- 比較単位: 機能・API・入出力契約。名称変更後のファイルだけを機械的に欠落判定しない。
+- `make release-check`（fmt/vet/lint/race unit/analysis/gate/CLI+sidecar build）、`make test-e2e`、govulncheck: 成功（Go 1.26.10）。
+- statsのFlush失敗をHTTP 500にする回帰テスト、WebSocket/CSV/JSONのI/O失敗処理を保存。
+- E2Eは実ローカルDuckDBとstub uploader。実AWS S3・本番負荷試験は未実施。
+- 生成バイナリ .load-inspector-sidecar.10EMG7 はコミットしていない。
 
-リクエスト単位metrics、DuckDB、baseline/endpoint回帰、latency、performance gate、分散統合、S3、Viewerの実装は名称正規化後に旧実装と対応。HTTP statsの永続化失敗処理とlint対応は作業中。
+## 公開前監査
 
-## 今回の修正と検証
+- GitHub APIで全refs（main、作業branch、残存branch、PR head参照）と到達可能なcommitのtreeを列挙。列挙時点で80 commits / 174 unique blobsを取得、欠落・truncated treeなし。以降の当作業commitは現行tree検査と併せて確認。
+- Gitleaks既定ruleで履歴の全blobとcommit metadataを検査。自動検出2件はいずれも古いsidecar-go/go.sumのAWS module h1 checksum。実credentialではないことを行内容・moduleパスで確認。raw scanはexit 1、手動判定はfalse positive。
+- PR最終treeは全fileを用意してGitleaks成功。localの検証対象sourceとGitHub PR headのblob hash一致を確認。
+- 全履歴のauthorはYuichi Takada、メールは866555+sibukixxx@users.noreply.github.com。LICENSEはMIT。
+- CI startup_failureはテスト実行前の起動失敗。CI成功とは記録せず、上記local gateを代替証拠とする。既存CIは削除していない。
 
-Goの最低版を1.26.10へ更新。既知の標準ライブラリ脆弱性に対応。既存CIは保持し、startup_failureをコードテスト失敗と混同しない。Cloudflare CI移行はplatform #41/#60の検証後に別途確定する。
+## 未完了の公開操作
 
-- テスト・vet・lint・build: 実行中。結果はこのファイルに追記する。
-- govulncheck: 実行予定。
-- 現行ツリー/公開予定全Git履歴のsecret scan、author表示名・メール確認: 公開前の再確認が必要。
-- README Quick Start/外部consumer/ライセンス/リリースtag: 最終確認が必要。
-- Public化、匿名clone、Release: 未実施。ゲート未完了のまま公開しない。
-- 旧リポジトリ: 保全。削除・archive・force pushは行わない。
+4正本はPrivate。Public化・Release作成・匿名clone/downloadは未実施。GitHub connectorはadministration/Release作成を提供せず、ブラウザは未ログイン。移行公開完了とは扱わない。公開後に匿名repository/README/LICENSE/Release/Quick Startを再検証して公式サイトをAvailableへ変更する。
 
-環境リセット前の検証結果は現在の作業ツリーの成功証拠として流用しない。
+予定初回tag: v0.1.0。旧repoは削除・archiveせず、共有履歴のforce pushなし。未完了Issueを閉じない。DNS・メール・他Workers/Pages・顧客環境は変更していない。
