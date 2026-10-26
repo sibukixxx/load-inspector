@@ -49,7 +49,7 @@ func (a *EndpointAnalyzer) GetEndpointStats(runID string) ([]EndpointStats, erro
 	if err != nil {
 		return nil, fmt.Errorf("endpoint analysis: %s failed: %w", summary.ID, err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	byEndpoint := map[string]*EndpointStats{}
 	var order []string
@@ -77,7 +77,7 @@ func (a *EndpointAnalyzer) GetEndpointStats(runID string) ([]EndpointStats, erro
 	if err != nil {
 		return nil, fmt.Errorf("endpoint analysis: %s failed: %w", dist.ID, err)
 	}
-	defer distRows.Close()
+	defer func() { _ = distRows.Close() }()
 
 	for distRows.Next() {
 		var endpoint string

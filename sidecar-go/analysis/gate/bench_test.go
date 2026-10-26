@@ -36,7 +36,7 @@ func buildBenchDB(b *testing.B, n int) *sql.DB {
 	if err != nil {
 		b.Fatalf("open duckdb: %v", err)
 	}
-	b.Cleanup(func() { db.Close() })
+	b.Cleanup(func() { _ = db.Close() })
 
 	if _, err := db.Exec(storage.MetricsTableSchema); err != nil {
 		b.Fatalf("create schema: %v", err)
@@ -46,7 +46,7 @@ func buildBenchDB(b *testing.B, n int) *sql.DB {
 	if err != nil {
 		b.Fatalf("create temp csv: %v", err)
 	}
-	defer tmp.Close()
+	defer func() { _ = tmp.Close() }()
 
 	w := csv.NewWriter(tmp)
 	header := []string{

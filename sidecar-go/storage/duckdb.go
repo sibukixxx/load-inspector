@@ -34,7 +34,7 @@ func NewDuckDBStorage(dbFile string) (*DuckDBStorage, error) {
 	}
 
 	if err := storage.initSchema(); err != nil {
-		db.Close()
+		_ = db.Close()
 		return nil, err
 	}
 
@@ -142,7 +142,7 @@ func (s *DuckDBStorage) writeBatch(batch []models.Event) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("create tmp csv error: %w", err)
 	}
-	defer os.Remove(tmp)
+	defer func() { _ = os.Remove(tmp) }()
 
 	w := csv.NewWriter(f)
 
@@ -157,7 +157,7 @@ func (s *DuckDBStorage) writeBatch(batch []models.Event) (int, error) {
 		"tags",
 	}
 	if err := w.Write(header); err != nil {
-		f.Close()
+		_ = f.Close()
 		return 0, fmt.Errorf("csv header write error: %w", err)
 	}
 
@@ -193,17 +193,19 @@ func (s *DuckDBStorage) writeBatch(batch []models.Event) (int, error) {
 			tagsJSON,
 		}
 		if err := w.Write(row); err != nil {
-			f.Close()
+			_ = f.Close()
 			return 0, fmt.Errorf("csv write error: %w", err)
 		}
 	}
 
 	w.Flush()
 	if err := w.Error(); err != nil {
-		f.Close()
+		_ = f.Close()
 		return 0, fmt.Errorf("csv flush error: %w", err)
 	}
-	f.Close()
+	if err := f.Close(); err != nil {
+		return 0, fmt.Errorf("csv close error: %w", err)
+	}
 
 	// COPY into DuckDB
 	q := fmt.Sprintf("COPY metrics FROM '%s' (HEADER true, AUTO_DETECT true);", tmp)

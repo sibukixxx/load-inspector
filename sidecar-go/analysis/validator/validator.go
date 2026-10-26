@@ -49,7 +49,7 @@ func Validate(db *sql.DB, q queries.Query, params ...any) (*Result, error) {
 	if err != nil {
 		return nil, fmt.Errorf("validator: %s failed to execute: %w", q.ID, err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	cols, err := rows.Columns()
 	if err != nil {
@@ -79,7 +79,7 @@ func checkRequiredColumns(db *sql.DB, q queries.Query) error {
 	if err != nil {
 		return fmt.Errorf("validator: failed to introspect metrics schema: %w", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	present := map[string]bool{}
 	for rows.Next() {

@@ -129,7 +129,7 @@ func splitHeaderLine(s string) (key, val string, ok bool) {
 	// Header keys are a single lowercase token; anything else (e.g. a
 	// description sentence containing ':') is treated as prose, not a key.
 	for _, r := range key {
-		if !(r >= 'a' && r <= 'z' || r == '_') {
+		if (r < 'a' || r > 'z') && r != '_' {
 			return "", "", false
 		}
 	}

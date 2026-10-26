@@ -95,7 +95,7 @@ func NewTestApp(t *testing.T, opts ...TestAppOption) *TestApp {
 
 	t.Cleanup(func() {
 		srv.Close()
-		store.Close()
+		_ = store.Close()
 	})
 
 	return app

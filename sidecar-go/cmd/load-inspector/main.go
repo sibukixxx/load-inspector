@@ -150,7 +150,7 @@ func runSummary(args []string) error {
 	if err != nil {
 		return err
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	comparator := analysis.NewComparator(db, analysis.DefaultThresholds())
 	stats, err := comparator.GetRunStats(*runID)
@@ -175,7 +175,7 @@ func runEndpoints(args []string) error {
 	if err != nil {
 		return err
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	stats, err := analysis.NewEndpointAnalyzer(db).GetEndpointStats(*runID)
 	if err != nil {
@@ -200,7 +200,7 @@ func runCompare(args []string) error {
 	if err != nil {
 		return err
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	result, err := analysis.NewComparator(db, analysis.DefaultThresholds()).Compare(*baseline, *current)
 	if err != nil {
@@ -225,7 +225,7 @@ func runDiagnose(args []string) error {
 	if err != nil {
 		return err
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	thresholds := analysis.DefaultThresholds()
 	analyzer := analysis.NewEndpointAnalyzer(db)
@@ -292,7 +292,7 @@ func loadEndpointStats(dbPath, runID string) ([]analysis.EndpointStats, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	if runID == "" {
 		runID, err = resolveSoleRunID(db, dbPath)
@@ -315,7 +315,7 @@ func resolveSoleRunID(db *sql.DB, dbPath string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to read run_id values from %s: %w", dbPath, err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var runIDs []string
 	for rows.Next() {

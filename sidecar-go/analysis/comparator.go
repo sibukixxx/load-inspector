@@ -282,7 +282,7 @@ func (c *Comparator) GetHistoricalTrend(limit int) ([]RunStats, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get historical trend: %w", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var results []RunStats
 	for rows.Next() {

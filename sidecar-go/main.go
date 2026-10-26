@@ -33,7 +33,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to create storage: %v", err)
 	}
-	defer store.Close()
+	defer func() { _ = store.Close() }()
 
 	// Initialize S3 uploader (optional)
 	s3Uploader, err := storage.NewS3UploaderFromEnv()

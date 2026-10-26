@@ -17,7 +17,7 @@ func TestNewDuckDBStorage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create storage: %v", err)
 	}
-	defer storage.Close()
+	defer func() { _ = storage.Close() }()
 
 	// Verify file was created
 	if _, err := os.Stat(dbFile); os.IsNotExist(err) {
@@ -33,7 +33,7 @@ func TestDuckDBStorage_AddEvent(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create storage: %v", err)
 	}
-	defer storage.Close()
+	defer func() { _ = storage.Close() }()
 
 	event := models.Event{
 		RunID:   "test-run",
@@ -60,7 +60,7 @@ func TestDuckDBStorage_AddEvents(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create storage: %v", err)
 	}
-	defer storage.Close()
+	defer func() { _ = storage.Close() }()
 
 	events := []models.Event{
 		{RunID: "test", Ts: 1000, Status: 200, RTT: 10.0},
@@ -83,7 +83,7 @@ func TestDuckDBStorage_Flush(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create storage: %v", err)
 	}
-	defer storage.Close()
+	defer func() { _ = storage.Close() }()
 
 	events := []models.Event{
 		{
@@ -138,11 +138,13 @@ func TestDuckDBStorage_Flush(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Query failed: %v", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var rowCount int
 	if rows.Next() {
-		rows.Scan(&rowCount)
+		if err := rows.Scan(&rowCount); err != nil {
+			t.Fatal(err)
+		}
 	}
 	if rowCount != 2 {
 		t.Errorf("Row count in DB = %d, expected 2", rowCount)
@@ -157,7 +159,7 @@ func TestDuckDBStorage_FlushEmpty(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create storage: %v", err)
 	}
-	defer storage.Close()
+	defer func() { _ = storage.Close() }()
 
 	count, err := storage.Flush()
 	if err != nil {
@@ -177,7 +179,7 @@ func TestDuckDBStorage_GetStats(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create storage: %v", err)
 	}
-	defer storage.Close()
+	defer func() { _ = storage.Close() }()
 
 	events := []models.Event{
 		{Ts: 1000, Status: 200, RTT: 10.0},
@@ -249,7 +251,7 @@ func TestDuckDBStorage_DetailedTimings(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create storage: %v", err)
 	}
-	defer storage.Close()
+	defer func() { _ = storage.Close() }()
 
 	event := models.Event{
 		RunID:           "test",
@@ -278,7 +280,7 @@ func TestDuckDBStorage_DetailedTimings(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Query failed: %v", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	if !rows.Next() {
 		t.Fatal("No rows returned")
@@ -314,7 +316,7 @@ func TestDuckDBStorage_Tags(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create storage: %v", err)
 	}
-	defer storage.Close()
+	defer func() { _ = storage.Close() }()
 
 	event := models.Event{
 		RunID:  "test",
@@ -338,7 +340,7 @@ func TestDuckDBStorage_Tags(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Query failed: %v", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	if !rows.Next() {
 		t.Fatal("No rows returned")

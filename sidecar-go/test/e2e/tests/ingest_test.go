@@ -25,7 +25,7 @@ func TestE2EIngest_SingleEvent(t *testing.T) {
 	}
 
 	resp := client.MustPostJSON(t, "/api/v1/ingest", event)
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	e2e.AssertAccepted(t, resp)
 }
 
@@ -43,7 +43,7 @@ func TestE2EIngest_BatchEvents(t *testing.T) {
 	}
 
 	resp := client.MustPostJSON(t, "/api/v1/ingest/batch", req)
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	e2e.AssertAccepted(t, resp)
 
 	var got handlers.IngestResponse
@@ -62,7 +62,7 @@ func TestE2EIngest_BatchEmpty_ReturnsBadRequest(t *testing.T) {
 	req := handlers.IngestRequest{Events: nil}
 
 	resp := client.MustPostJSON(t, "/api/v1/ingest/batch", req)
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	e2e.AssertBadRequest(t, resp)
 }
 
@@ -75,7 +75,7 @@ func TestE2EIngest_InvalidJSON_ReturnsBadRequest(t *testing.T) {
 	if err != nil {
 		t.Fatalf("request failed: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	e2e.AssertBadRequest(t, resp)
 }
 
@@ -97,7 +97,7 @@ func TestE2EIngest_FullFlow(t *testing.T) {
 	}
 
 	batchResp := client.MustPostJSON(t, "/api/v1/ingest/batch", batchReq)
-	defer batchResp.Body.Close()
+	defer func() { _ = batchResp.Body.Close() }()
 	e2e.AssertAccepted(t, batchResp)
 
 	var ingestResult handlers.IngestResponse
@@ -108,7 +108,7 @@ func TestE2EIngest_FullFlow(t *testing.T) {
 
 	// Flush buffer to DuckDB
 	flushResp := client.MustPost(t, "/api/v1/flush")
-	defer flushResp.Body.Close()
+	defer func() { _ = flushResp.Body.Close() }()
 	e2e.AssertOK(t, flushResp)
 
 	var flushResult handlers.FlushResponse
@@ -119,7 +119,7 @@ func TestE2EIngest_FullFlow(t *testing.T) {
 
 	// Get stats and verify
 	statsResp := client.MustGet(t, "/api/v1/stats")
-	defer statsResp.Body.Close()
+	defer func() { _ = statsResp.Body.Close() }()
 	e2e.AssertOK(t, statsResp)
 
 	var stats handlers.StatsResponse

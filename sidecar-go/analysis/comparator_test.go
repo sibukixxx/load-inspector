@@ -44,12 +44,12 @@ func setupTestDB(t *testing.T) (*sql.DB, func()) {
 		)
 	`)
 	if err != nil {
-		db.Close()
+		_ = db.Close()
 		t.Fatalf("Failed to create schema: %v", err)
 	}
 
 	cleanup := func() {
-		db.Close()
+		_ = db.Close()
 	}
 
 	return db, cleanup

@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
@@ -26,7 +27,7 @@ func setupTestHandler(t *testing.T) (*Handlers, func()) {
 	h := NewHandlers(store, nil, "test-run")
 
 	cleanup := func() {
-		store.Close()
+		_ = store.Close()
 	}
 
 	return h, cleanup
@@ -275,7 +276,9 @@ func TestHandleDownload(t *testing.T) {
 
 	// Add and flush an event to create data
 	h.storage.AddEvent(models.Event{Ts: 1000, Status: 200, RTT: 10.0})
-	h.storage.Flush()
+	if _, err := h.storage.Flush(); err != nil {
+		t.Fatal(err)
+	}
 
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/download", nil)
 	w := httptest.NewRecorder()
@@ -335,7 +338,9 @@ func TestHandleIngestWithDetailedTimings(t *testing.T) {
 	}
 
 	// Flush and verify via underlying DuckDB storage
-	h.storage.Flush()
+	if _, err := h.storage.Flush(); err != nil {
+		t.Fatal(err)
+	}
 
 	store, ok := h.storage.(*duckdbstorage.DuckDBStorage)
 	if !ok {
@@ -345,7 +350,7 @@ func TestHandleIngestWithDetailedTimings(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Query failed: %v", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	if !rows.Next() {
 		t.Fatal("No rows returned")
@@ -358,5 +363,17 @@ func TestHandleIngestWithDetailedTimings(t *testing.T) {
 
 	if dns != 5.0 || tcp != 10.0 || tls != 20.0 {
 		t.Errorf("Timing values mismatch: dns=%f, tcp=%f, tls=%f", dns, tcp, tls)
+	}
+}
+
+type failingFlushStorage struct{ Storage }
+
+func (failingFlushStorage) Flush() (int, error) { return 0, errors.New("fixture persistence failure") }
+func TestHandleStatsRejectsFailedPersistence(t *testing.T) {
+	h := NewHandlers(failingFlushStorage{}, nil, "test-run")
+	w := httptest.NewRecorder()
+	h.HandleStats(w, httptest.NewRequest(http.MethodGet, "/api/v1/stats", nil))
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("expected HTTP 500, got %d", w.Code)
 	}
 }

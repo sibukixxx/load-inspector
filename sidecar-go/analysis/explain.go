@@ -100,7 +100,7 @@ func affectedPods(db *sql.DB, runID, endpoint string) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("explain: %s failed: %w", q.ID, err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	type podStat struct {
 		pod    string

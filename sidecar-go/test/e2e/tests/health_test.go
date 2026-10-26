@@ -16,7 +16,7 @@ func TestE2EHealth_ReturnsOK(t *testing.T) {
 	for _, path := range []string{"/health", "/api/v1/health"} {
 		t.Run(path, func(t *testing.T) {
 			resp := client.MustGet(t, path)
-			defer resp.Body.Close()
+			defer func() { _ = resp.Body.Close() }()
 			e2e.AssertOK(t, resp)
 
 			var got handlers.HealthResponse
@@ -37,7 +37,7 @@ func TestE2EHealth_S3EnabledFlag(t *testing.T) {
 		client := e2e.NewClient(app.BaseURL())
 
 		resp := client.MustGet(t, "/api/v1/health")
-		defer resp.Body.Close()
+		defer func() { _ = resp.Body.Close() }()
 
 		var got handlers.HealthResponse
 		e2e.DecodeJSON(t, resp, &got)
@@ -51,7 +51,7 @@ func TestE2EHealth_S3EnabledFlag(t *testing.T) {
 		client := e2e.NewClient(app.BaseURL())
 
 		resp := client.MustGet(t, "/api/v1/health")
-		defer resp.Body.Close()
+		defer func() { _ = resp.Body.Close() }()
 
 		var got handlers.HealthResponse
 		e2e.DecodeJSON(t, resp, &got)
@@ -68,7 +68,7 @@ func TestE2EHealth_BufferSizeReflectsIngested(t *testing.T) {
 
 	// Initially buffer should be empty
 	resp1 := client.MustGet(t, "/api/v1/health")
-	defer resp1.Body.Close()
+	defer func() { _ = resp1.Body.Close() }()
 
 	var initial handlers.HealthResponse
 	e2e.DecodeJSON(t, resp1, &initial)
