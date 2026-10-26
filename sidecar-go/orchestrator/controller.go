@@ -141,7 +141,7 @@ func (c *Controller) healthCheck(ctx context.Context, pod *Pod) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("unhealthy status: %d", resp.StatusCode)
@@ -233,7 +233,7 @@ func (c *Controller) flushPod(ctx context.Context, pod *Pod, upload bool) FlushA
 		result.Error = err.Error()
 		return result
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
@@ -390,7 +390,7 @@ func (c *Controller) GetStats(ctx context.Context) (map[string]interface{}, erro
 			if err != nil {
 				return
 			}
-			defer resp.Body.Close()
+			defer func() { _ = resp.Body.Close() }()
 
 			var stats struct {
 				TotalRequests int64 `json:"total_requests"`

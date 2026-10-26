@@ -1,35 +1,35 @@
 module github.com/sibukixxx/load-inspector/sidecar-go
 
-go 1.24
+go 1.26.10
 
 require (
-	github.com/aws/aws-sdk-go-v2 v1.30.1
+	github.com/aws/aws-sdk-go-v2 v1.41.5
 	github.com/aws/aws-sdk-go-v2/config v1.27.20
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.20
 	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.17.0
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.58.0
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.97.3
 	github.com/duckdb/duckdb-go/v2 v2.5.3
 	github.com/gorilla/mux v1.8.1
-	github.com/gorilla/websocket v1.5.1
+	github.com/gorilla/websocket v1.5.3
 	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
 	github.com/apache/arrow-go/v18 v18.4.1 // indirect
-	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.3 // indirect
+	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.8 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.7 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/configsources v1.3.13 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.6.13 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.21 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.21 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/ini v1.8.0 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/v4a v1.3.13 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.11.3 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.3.15 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.11.15 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.17.13 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/v4a v1.4.22 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.7 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.9.13 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.13.21 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.19.21 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sso v1.21.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.25.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.29.0 // indirect
-	github.com/aws/smithy-go v1.20.3 // indirect
+	github.com/aws/smithy-go v1.24.2 // indirect
 	github.com/duckdb/duckdb-go-bindings v0.1.23 // indirect
 	github.com/duckdb/duckdb-go-bindings/darwin-amd64 v0.1.23 // indirect
 	github.com/duckdb/duckdb-go-bindings/darwin-arm64 v0.1.23 // indirect

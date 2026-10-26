@@ -46,7 +46,7 @@ func TestController_HealthCheckAll(t *testing.T) {
 	// Create mock server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/api/v1/health" {
-			json.NewEncoder(w).Encode(map[string]interface{}{
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{
 				"status":      "ok",
 				"buffer_size": 10,
 			})
@@ -85,7 +85,7 @@ func TestController_FlushAll(t *testing.T) {
 	// Create mock server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/api/v1/flush-upload" && r.Method == "POST" {
-			json.NewEncoder(w).Encode(map[string]interface{}{
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{
 				"flushed":  100,
 				"uploaded": true,
 				"key":      "runs/test/file.duckdb",
@@ -169,7 +169,9 @@ func TestController_GetRun(t *testing.T) {
 	c.pods["pod-1"].Status = PodStatusHealthy
 	c.podsMu.Unlock()
 
-	c.StartRun("test-run")
+	if _, err := c.StartRun("test-run"); err != nil {
+		t.Fatal(err)
+	}
 
 	run, exists := c.GetRun("test-run")
 	if !exists {
@@ -192,9 +194,15 @@ func TestController_GetRuns(t *testing.T) {
 	c.pods["pod-1"].Status = PodStatusHealthy
 	c.podsMu.Unlock()
 
-	c.StartRun("run-1")
-	c.StartRun("run-2")
-	c.StartRun("run-3")
+	if _, err := c.StartRun("run-1"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := c.StartRun("run-2"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := c.StartRun("run-3"); err != nil {
+		t.Fatal(err)
+	}
 
 	runs := c.GetRuns()
 	if len(runs) != 3 {
@@ -211,7 +219,7 @@ func TestController_WaitForCompletion(t *testing.T) {
 			if callCount >= 3 {
 				bufferSize = 0 // Empty after 3 calls
 			}
-			json.NewEncoder(w).Encode(map[string]interface{}{
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{
 				"status":      "ok",
 				"buffer_size": bufferSize,
 			})
@@ -238,7 +246,7 @@ func TestController_WaitForCompletion(t *testing.T) {
 func TestController_WaitForCompletion_Timeout(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/api/v1/health" {
-			json.NewEncoder(w).Encode(map[string]interface{}{
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{
 				"status":      "ok",
 				"buffer_size": 100, // Never empty
 			})
@@ -265,7 +273,7 @@ func TestController_WaitForCompletion_Timeout(t *testing.T) {
 func TestController_GetStats(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/api/v1/stats" {
-			json.NewEncoder(w).Encode(map[string]interface{}{
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{
 				"total_requests": 1000,
 				"error_count":    50,
 				"buffer_size":    10,

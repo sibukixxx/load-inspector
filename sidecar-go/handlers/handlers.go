@@ -159,7 +159,7 @@ func (h *Handlers) HandleDownload(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "not found", http.StatusNotFound)
 		return
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filepath.Base(h.storage.GetDBFile())))
@@ -183,7 +183,11 @@ type StatsResponse struct {
 // HandleStats returns current metrics statistics
 func (h *Handlers) HandleStats(w http.ResponseWriter, r *http.Request) {
 	// Flush first to get latest data
-	h.storage.Flush()
+	if _, err := h.storage.Flush(); err != nil {
+		log.Printf("stats flush error: %v", err)
+		http.Error(w, "failed to persist metrics", http.StatusInternalServerError)
+		return
+	}
 
 	stats, err := h.storage.GetStats()
 	if err != nil {
@@ -228,5 +232,7 @@ func (h *Handlers) HandleHealth(w http.ResponseWriter, r *http.Request) {
 func writeJSON(w http.ResponseWriter, status int, v interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(v)
+	if err := json.NewEncoder(w).Encode(v); err != nil {
+		log.Printf("JSON response error: %v", err)
+	}
 }

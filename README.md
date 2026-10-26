@@ -430,3 +430,7 @@ If this toolkit is useful to you, consider starring the repo — it helps others
 ## License
 
 Distributed under the [MIT License](LICENSE).
+
+### Persistence failures
+
+`GET /api/v1/stats` flushes buffered metrics before computing statistics. A persistence failure must return HTTP 500 rather than reporting incomplete statistics as a successful response.

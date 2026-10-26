@@ -47,7 +47,7 @@ func captureStdout(t *testing.T, fn func() error) (string, error) {
 
 	fnErr := fn()
 
-	w.Close()
+	_ = w.Close()
 	os.Stdout = old
 
 	var buf bytes.Buffer
@@ -308,7 +308,7 @@ func captureStdoutInt(t *testing.T, fn func() int) (string, int) {
 
 	code := fn()
 
-	w.Close()
+	_ = w.Close()
 	os.Stdout = old
 
 	var buf bytes.Buffer

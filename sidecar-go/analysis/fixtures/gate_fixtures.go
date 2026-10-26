@@ -217,7 +217,7 @@ func BuildGateDB(scenario GateScenario) (db *sql.DB, cleanup func(), err error) 
 	if err != nil {
 		return nil, nil, fmt.Errorf("fixtures: open duckdb: %w", err)
 	}
-	cleanup = func() { db.Close() }
+	cleanup = func() { _ = db.Close() }
 
 	if _, err = db.Exec(storage.MetricsTableSchema); err != nil {
 		cleanup()
@@ -235,7 +235,7 @@ func BuildGateDB(scenario GateScenario) (db *sql.DB, cleanup func(), err error) 
 		cleanup()
 		return nil, nil, fmt.Errorf("fixtures: prepare insert: %w", err)
 	}
-	defer stmt.Close()
+	defer func() { _ = stmt.Close() }()
 
 	for _, e := range GenerateGate(scenario) {
 		_, err = stmt.Exec(

@@ -15,7 +15,7 @@ func TestE2EFlush_EmptyBuffer(t *testing.T) {
 	client := e2e.NewClient(app.BaseURL())
 
 	resp := client.MustPost(t, "/api/v1/flush")
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	e2e.AssertOK(t, resp)
 
 	var got handlers.FlushResponse
@@ -34,11 +34,11 @@ func TestE2EFlush_WithEvents(t *testing.T) {
 	for i := range 3 {
 		ev := models.Event{Ts: int64(i+1) * 1000, Status: 200, RTT: float64(i+1) * 10}
 		r := client.MustPostJSON(t, "/api/v1/ingest", ev)
-		r.Body.Close()
+		_ = r.Body.Close()
 	}
 
 	resp := client.MustPost(t, "/api/v1/flush")
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	e2e.AssertOK(t, resp)
 
 	var got handlers.FlushResponse
@@ -57,10 +57,10 @@ func TestE2EFlushUpload_WithStubUploader(t *testing.T) {
 	// Ingest one event so there is something to flush
 	ev := models.Event{Ts: 1000, Status: 200, RTT: 50.0}
 	ingestResp := client.MustPostJSON(t, "/api/v1/ingest", ev)
-	ingestResp.Body.Close()
+	_ = ingestResp.Body.Close()
 
 	resp := client.MustPost(t, "/api/v1/flush-upload")
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	e2e.AssertOK(t, resp)
 
 	var got handlers.FlushResponse
@@ -94,10 +94,10 @@ func TestE2EFlushUpload_WithoutUploader(t *testing.T) {
 
 	ev := models.Event{Ts: 1000, Status: 200, RTT: 10.0}
 	ingestResp := client.MustPostJSON(t, "/api/v1/ingest", ev)
-	ingestResp.Body.Close()
+	_ = ingestResp.Body.Close()
 
 	resp := client.MustPost(t, "/api/v1/flush-upload")
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	e2e.AssertOK(t, resp)
 
 	var got handlers.FlushResponse

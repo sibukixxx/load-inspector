@@ -93,7 +93,7 @@ func (u *S3Uploader) UploadFile(ctx context.Context, key, filePath string) error
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	uploader := manager.NewUploader(u.client)
 	_, err = uploader.Upload(ctx, &s3.PutObjectInput{
@@ -114,7 +114,7 @@ func (u *S3Uploader) DownloadFile(ctx context.Context, key, filePath string) err
 	if err != nil {
 		return fmt.Errorf("failed to create file: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	downloader := manager.NewDownloader(u.client)
 	_, err = downloader.Download(ctx, f, &s3.GetObjectInput{
